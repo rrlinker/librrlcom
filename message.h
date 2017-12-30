@@ -4,10 +4,8 @@
 #include "token.h"
 
 #include <vector>
-#include <optional>
+#include <memory>
 #include <cstdint>
-
-#pragma pack(push, 1)
 
 namespace rrl {
 
@@ -55,8 +53,12 @@ namespace rrl {
             Body::write(conn, body());
         }
 
-        void read(Connection &conn) {
+        void read_header(Connection &conn) {
             conn >> header.size >> header.type;
+        }
+
+        void read(Connection &conn) {
+            read_header(conn);
             Body::read(conn, header, body());
         }
     };
@@ -65,13 +67,12 @@ namespace rrl {
 
         namespace body {
             struct Any {
-                using value_type = std::vector<std::byte>;
+                using value_type = std::shared_ptr<void>;
                 static void write(Connection &conn, value_type const &value) {
-                    conn.send(value.data(), value.size());
+                    throw "cannot write body of Any";
                 }
                 static void read(Connection &conn, MessageHeader const &header, value_type &value) {
-                    value.resize(header.size);
-                    conn.recv(value.data(), value.size());
+                    throw "cannot read body of Any";
                 }
             };
 
@@ -102,23 +103,102 @@ namespace rrl {
                 }
             };
 
+
+            template<typename T>
+            struct vector_of_values {
+                using value_type = std::vector<T>;
+
+                static void write(Connection &conn, value_type const &value) {
+                    conn << (uint64_t)value.size();
+                    for (auto ptr : value) {
+                        conn << ptr;
+                    }
+                }
+                static void read(Connection &conn, value_type &value) {
+                    uint64_t size;
+                    conn >> size;
+                    value.resize(size);
+                    for (auto& ptr : value) {
+                        conn >> ptr;
+                    }
+                }
+            };
+
+            template<typename T, typename U>
+            struct vector_of_value_pairs {
+                using value_type = std::vector<std::pair<T, U>>;
+                static void write(Connection &conn, value_type const &value) {
+                    conn << (uint64_t)value.size();
+                    for (auto [addr, size] : value) {
+                        conn << addr << size;
+
+                    }
+                }
+                static void read(Connection &conn, value_type &value) {
+                    uint64_t size;
+                    conn >> size;
+                    value.resize(size);
+                    for (auto& [addr, size] : value) {
+                        conn >> addr >> size;
+                    }
+                }
+            };
             struct LinkLibrary {
                 using value_type = LinkLibrary;
+
+                char name[64];
+
                 static void write(Connection &conn, value_type const &value) {
                     conn.send(reinterpret_cast<std::byte const*>(value.name), sizeof(value.name));
                 }
                 static void read(Connection &conn, value_type &value) {
                     conn.recv(reinterpret_cast<std::byte*>(value.name), sizeof(value.name));
                 }
-                char name[64];
+            };
+
+            struct ResolveExternalSymbols {
+                using value_type = std::vector<std::pair<std::string, std::string>>;
+
+                static void write(Connection &conn, value_type const &value) {
+                    conn << (uint64_t)value.size();
+                    for (auto const& [lib, sym] : value) {
+                        conn.send(lib);
+                        conn.send(sym);
+                    }
+                }
+                static void read(Connection &conn, value_type &value) {
+                    uint64_t size;
+                    conn >> size;
+                    value.resize(size);
+                    for (auto& [lib, sym] : value) {
+                        conn.recv(lib);
+                        conn.recv(sym);
+                    }
+                }
+            };
+
+            using ResolvedSymbols = vector_of_values<uint64_t>;
+            using ReserveMemorySpaces = vector_of_value_pairs<uint64_t, uint64_t>;
+            using ReservedMemory = vector_of_values<uint64_t>;
+
+            struct CommitMemory {
+                using value_type = CommitMemory;
+
+                uint64_t address;
+                uint32_t protection;
+                std::vector<std::byte> memory;
+                static void write(Connection &conn, value_type const &value) {
+                    conn << value.address << value.protection << (uint64_t)value.memory.size();
+                    conn.send(value.memory.data(), value.memory.size());
+                }
+                static void read(Connection &conn, value_type &value) {
+                    uint64_t memory_size;
+                    conn >> value.address >> value.protection >> memory_size;
+                    value.memory.resize(memory_size);
+                    conn.recv(value.memory.data(), value.memory.size());
+                }
             };
         }
-
-        struct Any : MessageWrapper<body::Any> {
-            Any() : MessageWrapper(0, MessageType::Unknown) {}
-            template<typename T>
-            T const& cast() const { return *reinterpret_cast<T const*>(body().data()); }
-        };
 
 #define BEGIN_DEFINE_MESSAGE(TYPE, BASE) \
 struct TYPE : MessageWrapper<body::BASE> { \
@@ -137,6 +217,26 @@ END_DEFINE_MESSAGE()
 #undef END_DEFINE_MESSAGE
 #undef BEGIN_DEFINE_MESSAGE
 
+        struct Any : MessageWrapper<body::Any> {
+            Any() : MessageWrapper(0, MessageType::Unknown) {}
+            template<typename T>
+            T& cast() { return *static_cast<T*>(body().get()); }
+            template<typename T>
+            T const& cast() const { return *static_cast<T const*>(body().get()); }
+            void read(Connection &conn) {
+                read_header(conn);
+                body() = std::make_shared<ReservedMemory>();
+                switch (type()) {
+#define X(TYPE, _, BODY) case MessageType::TYPE: \
+body() = std::make_shared<TYPE>(); \
+body::BODY::read(conn, cast<TYPE>().body()); \
+break;
+#include "message_definitions.h"
+#undef X
+                }
+            }
+        };
+
     }
 
 
@@ -152,5 +252,3 @@ END_DEFINE_MESSAGE()
     };
 
 }
-
-#pragma pack(pop)
