@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClInclude Include="address.h">
+      <Filter>address</Filter>
+    </ClInclude>
+    <ClInclude Include="connection.h">
+      <Filter>connection</Filter>
+    </ClInclude>
+    <ClInclude Include="courier.h">
+      <Filter>courier</Filter>
+    </ClInclude>
+    <ClInclude Include="message_definitions.h">
+      <Filter>message</Filter>
+    </ClInclude>
+    <ClInclude Include="message.h">
+      <Filter>message</Filter>
+    </ClInclude>
+    <ClInclude Include="token.h">
+      <Filter>token</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="connection.cpp">
+      <Filter>connection</Filter>
+    </ClCompile>
+    <ClCompile Include="courier.cpp">
+      <Filter>courier</Filter>
+    </ClCompile>
+    <ClCompile Include="message.cpp">
+      <Filter>message</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="address">
+      <UniqueIdentifier>{e05b22d9-adde-4fb9-aa4c-3cd250c53362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="connection">
+      <UniqueIdentifier>{6c40bd9c-d8b8-4ca3-9ee8-1f4ab0e36675}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="courier">
+      <UniqueIdentifier>{f47d79cf-3964-4b72-82be-279d35b5f25f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="message">
+      <UniqueIdentifier>{229640ea-1050-4456-8d9a-2d285a03c8d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="token">
+      <UniqueIdentifier>{77bd83a9-dc18-47fb-ae80-b411469bafbb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
