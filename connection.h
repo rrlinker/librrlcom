@@ -12,6 +12,7 @@ namespace rrl {
     class Connection {
     public:
         explicit Connection(int fd = -1);
+        virtual ~Connection() = 0;
 
         virtual void connect(Address const &address) = 0;
         virtual void disconnect() = 0;
