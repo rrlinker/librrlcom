@@ -4,7 +4,7 @@
 #include "token.h"
 
 #include <vector>
-#include <memory>
+#include <any>
 #include <cstdint>
 
 namespace rrl {
@@ -67,7 +67,7 @@ namespace rrl {
 
         namespace body {
             struct Any {
-                using value_type = std::shared_ptr<void>;
+                using value_type = std::any;
                 static void write(Connection &conn, value_type const &value) {
                     throw "cannot write body of Any";
                 }
@@ -220,15 +220,14 @@ END_DEFINE_MESSAGE()
         struct Any : MessageWrapper<body::Any> {
             Any() : MessageWrapper(0, MessageType::Unknown) {}
             template<typename T>
-            T& cast() { return *static_cast<T*>(body().get()); }
+            T& cast() { return std::any_cast<T&>(body()); }
             template<typename T>
-            T const& cast() const { return *static_cast<T const*>(body().get()); }
+            T const& cast() const { return std::any_cast<T const&>(body()); }
             void read(Connection &conn) {
                 read_header(conn);
-                body() = std::make_shared<ReservedMemory>();
                 switch (type()) {
 #define X(TYPE, _, BODY) case MessageType::TYPE: \
-body() = std::make_shared<TYPE>(); \
+body() = TYPE{}; \
 body::BODY::read(conn, cast<TYPE>().body()); \
 break;
 #include "message_definitions.h"
@@ -238,7 +237,6 @@ break;
         };
 
     }
-
 
     class UnexpectedResponse : public std::runtime_error {
     public:
@@ -252,3 +250,4 @@ break;
     };
 
 }
+
