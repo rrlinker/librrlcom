@@ -11,7 +11,7 @@ namespace rrl {
 
         msg::Any receive() {
             msg::Any msg;
-            msg.read_header(conn_);
+            msg.read(conn_);
             return msg;
         }
 
