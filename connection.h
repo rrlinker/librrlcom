@@ -17,8 +17,8 @@ namespace rrl {
         virtual void connect(Address const &address) = 0;
         virtual void disconnect() = 0;
 
-        virtual void send(std::byte const *data, size_t length) = 0;
-        virtual void recv(std::byte *data, size_t length) = 0;
+        virtual void send(std::byte const *data, uint64_t length) = 0;
+        virtual void recv(std::byte *data, uint64_t length) = 0;
 
         virtual void send(std::string const &str);
         virtual void recv(std::string &str);

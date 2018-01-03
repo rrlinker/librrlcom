@@ -15,7 +15,7 @@ void Connection::send(std::string const &str) {
 }
 
 void Connection::recv(std::string &str) {
-    size_t size = 0;
+    uint64_t size = 0;
     recv(reinterpret_cast<std::byte*>(&size), sizeof(size));
     str.resize(size);
     recv(reinterpret_cast<std::byte*>(str.data()), str.size());
