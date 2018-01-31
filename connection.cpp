@@ -9,7 +9,7 @@ Connection::Connection(int sockfd)
 Connection::~Connection() {}
 
 void Connection::send(std::string const &str) {
-    size_t size = str.size();
+    uint64_t size = str.size();
     send(reinterpret_cast<std::byte const*>(&size), sizeof(size));
     send(reinterpret_cast<std::byte const*>(str.data()), str.size());
 }
