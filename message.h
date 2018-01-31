@@ -93,6 +93,16 @@ namespace rrl {
                 }
             };
 
+            struct String {
+                using value_type = std::string;
+                static void write(Connection &conn, value_type const &value) {
+                    conn.send(value);
+                }
+                static void read(Connection &conn, value_type &value) {
+                    conn.recv(value);
+                }
+            };
+
             struct Token {
                 using value_type = rrl::Token;
                 static void write(Connection &conn, value_type const &value) {
@@ -159,18 +169,7 @@ namespace rrl {
                 }
             };
 
-            struct LinkLibrary {
-                using value_type = LinkLibrary;
-
-                char name[64];
-
-                static void write(Connection &conn, value_type const &value) {
-                    conn.send(reinterpret_cast<std::byte const*>(value.name), sizeof(value.name));
-                }
-                static void read(Connection &conn, value_type &value) {
-                    conn.recv(reinterpret_cast<std::byte*>(value.name), sizeof(value.name));
-                }
-            };
+            using LinkLibrary = String;
 
             struct ResolveExternalSymbol {
                 struct value_type {
@@ -190,7 +189,7 @@ namespace rrl {
 
             using ResolvedSymbol = Value<uint64_t>;
             using ReserveMemorySpace = pair_of_values<uint64_t, uint64_t>;
-            using ReservedMemory = pair_of_values<uint64_t, uint64_t>;
+            using ReservedMemory = Value<uint64_t>;
 
             struct CommitMemory {
                 using value_type = CommitMemory;
