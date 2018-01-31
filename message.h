@@ -103,6 +103,21 @@ namespace rrl {
                 }
             };
 
+            template<typename T, typename U>
+            struct pair_of_values {
+                struct value_type {
+                    T first;
+                    U second;
+                };
+                static void write(Connection &conn, value_type const &value) {
+                    conn.send(reinterpret_cast<std::byte const*>(&value.first), sizeof(value.first));
+                    conn.send(reinterpret_cast<std::byte const*>(&value.second), sizeof(value.second));
+                }
+                static void read(Connection &conn, value_type &value) {
+                    conn.recv(reinterpret_cast<std::byte*>(&value.first), sizeof(value.first));
+                    conn.recv(reinterpret_cast<std::byte*>(&value.second), sizeof(value.second));
+                }
+            };
 
             template<typename T>
             struct vector_of_values {
@@ -143,6 +158,7 @@ namespace rrl {
                     }
                 }
             };
+
             struct LinkLibrary {
                 using value_type = LinkLibrary;
 
@@ -156,30 +172,25 @@ namespace rrl {
                 }
             };
 
-            struct ResolveExternalSymbols {
-                using value_type = std::vector<std::pair<std::string, std::string>>;
+            struct ResolveExternalSymbol {
+                struct value_type {
+                    std::string library;
+                    std::string symbol;
+                };
 
                 static void write(Connection &conn, value_type const &value) {
-                    conn << (uint64_t)value.size();
-                    for (auto const& [lib, sym] : value) {
-                        conn.send(lib);
-                        conn.send(sym);
-                    }
+                    conn.send(value.library);
+                    conn.send(value.symbol);
                 }
                 static void read(Connection &conn, value_type &value) {
-                    uint64_t size;
-                    conn >> size;
-                    value.resize(size);
-                    for (auto& [lib, sym] : value) {
-                        conn.recv(lib);
-                        conn.recv(sym);
-                    }
+                    conn.recv(value.library);
+                    conn.recv(value.symbol);
                 }
             };
 
-            using ResolvedSymbols = vector_of_values<uint64_t>;
-            using ReserveMemorySpaces = vector_of_value_pairs<uint64_t, uint64_t>;
-            using ReservedMemory = vector_of_values<uint64_t>;
+            using ResolvedSymbol = Value<uint64_t>;
+            using ReserveMemorySpace = pair_of_values<uint64_t, uint64_t>;
+            using ReservedMemory = pair_of_values<uint64_t, uint64_t>;
 
             struct CommitMemory {
                 using value_type = CommitMemory;
