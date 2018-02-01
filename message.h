@@ -208,6 +208,10 @@ namespace rrl {
                     conn.recv(value.memory.data(), value.memory.size());
                 }
             };
+
+            // svclinker <-> svcsymres
+            using GetSymbolLibrary = String;
+            using ResolvedSymbolLibrary = String;
         }
 
 #define BEGIN_DEFINE_MESSAGE(TYPE, BASE) \
