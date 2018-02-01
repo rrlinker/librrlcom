@@ -10,6 +10,7 @@ X(LinkLibrary                  , 0x111BLL                      , LinkLibrary    
 // client <-> svclinker
 X(ResolveExternalSymbol        , 0x435014332417BLL             , ResolveExternalSymbol         )
 X(ResolvedSymbol               , 0x4350143D267B0LL             , ResolvedSymbol                )
+X(ExportSymbol                 , 0x380047517B0LL               , ExportSymbol                  )
 X(ReserveMemorySpace           , 0x4353443737041LL             , ReserveMemorySpace            )
 X(ReservedMemory               , 0x4353443D737041LL            , ReservedMemory                )
 X(CommitMemory                 , 0xC0881783801LL               , CommitMemory                  )

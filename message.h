@@ -176,7 +176,6 @@ namespace rrl {
                     std::string library;
                     std::string symbol;
                 };
-
                 static void write(Connection &conn, value_type const &value) {
                     conn.send(value.library);
                     conn.send(value.symbol);
@@ -184,6 +183,21 @@ namespace rrl {
                 static void read(Connection &conn, value_type &value) {
                     conn.recv(value.library);
                     conn.recv(value.symbol);
+                }
+            };
+
+            struct ExportSymbol {
+                struct value_type {
+                    std::string symbol;
+                    uint64_t address;
+                };
+                static void write(Connection &conn, value_type const &value) {
+                    conn.send(value.symbol);
+                    conn << value.address;
+                }
+                static void read(Connection &conn, value_type &value) {
+                    conn.recv(value.symbol);
+                    conn >> value.address;
                 }
             };
 
