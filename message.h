@@ -10,17 +10,15 @@
 namespace rrl {
 
     enum class MessageType : uint64_t {
-#define X(TYPE, VALUE, _) TYPE = VALUE,
+#define X(TYPE, VALUE) TYPE = VALUE,
 #include "message_definitions.h"
 #undef X
     };
 
     struct MessageHeader {
-        uint64_t size;
         MessageType type;
-        MessageHeader(uint64_t size, MessageType type) noexcept
-            : size(size)
-            , type(type)
+        MessageHeader(MessageType type) noexcept
+            : type(type)
         {}
     };
 
@@ -29,32 +27,31 @@ namespace rrl {
     private:
         MessageHeader header;
     public:
-        uint64_t size() const { return header.size; }
         MessageType type() const { return header.type; }
         typename Body::value_type& body() { return *this; }
         typename Body::value_type const& body() const { return *this; }
 
-        MessageWrapper(uint64_t size, MessageType type) noexcept
-            : header(size, type)
+        MessageWrapper(MessageType type) noexcept
+            : header(type)
         {}
 
-        MessageWrapper(uint64_t size, MessageType type, typename Body::value_type const &value)
-            : header(size, type)
+        MessageWrapper(MessageType type, typename Body::value_type const &value)
+            : header(type)
             , Body::value_type(value)
         {}
 
-        MessageWrapper(uint64_t size, MessageType type, typename Body::value_type &&value)
-            : header(size, type)
+        MessageWrapper(MessageType type, typename Body::value_type &&value)
+            : header(type)
             , Body::value_type(std::forward<typename Body::value_type>(value))
         {}
 
         void write(Connection &conn) const {
-            conn << header.size << header.type;
+            conn << header.type;
             Body::write(conn, body());
         }
 
         void read_header(Connection &conn) {
-            conn >> header.size >> header.type;
+            conn >> header.type;
         }
 
         void read(Connection &conn) {
@@ -96,10 +93,10 @@ namespace rrl {
             struct String {
                 using value_type = std::string;
                 static void write(Connection &conn, value_type const &value) {
-                    conn.send(value);
+                    conn << value;
                 }
                 static void read(Connection &conn, value_type &value) {
-                    conn.recv(value);
+                    conn >> value;
                 }
             };
 
@@ -169,45 +166,45 @@ namespace rrl {
                 }
             };
 
+            // Common
+            using Unknown = Empty;
+            using OK = Empty;
+
+            // client <-> svcreqhandler
+            using Version = Value<uint64_t>;
+            using Authorization = Token;
             using LinkLibrary = String;
 
+            // client <-> svclinker
             struct ResolveExternalSymbol {
                 struct value_type {
                     std::string library;
                     std::string symbol;
                 };
                 static void write(Connection &conn, value_type const &value) {
-                    conn.send(value.library);
-                    conn.send(value.symbol);
+                    conn << value.library << value.symbol;
                 }
                 static void read(Connection &conn, value_type &value) {
-                    conn.recv(value.library);
-                    conn.recv(value.symbol);
+                    conn >> value.library >> value.symbol;
                 }
             };
-
+            using ResolvedSymbol = Value<uint64_t>;
             struct ExportSymbol {
                 struct value_type {
                     std::string symbol;
                     uint64_t address;
                 };
                 static void write(Connection &conn, value_type const &value) {
-                    conn.send(value.symbol);
-                    conn << value.address;
+                    conn << value.symbol << value.address;
                 }
                 static void read(Connection &conn, value_type &value) {
-                    conn.recv(value.symbol);
-                    conn >> value.address;
+                    conn >> value.symbol >> value.address;
                 }
             };
-
-            using ResolvedSymbol = Value<uint64_t>;
             using ReserveMemorySpace = pair_of_values<uint64_t, uint64_t>;
             using ReservedMemory = Value<uint64_t>;
-
             struct CommitMemory {
                 using value_type = CommitMemory;
-
                 uint64_t address;
                 uint32_t protection;
                 std::vector<std::byte> memory;
@@ -222,22 +219,23 @@ namespace rrl {
                     conn.recv(value.memory.data(), value.memory.size());
                 }
             };
+            using Execute = Value<uint64_t>;
 
             // svclinker <-> svcsymres
             using GetSymbolLibrary = String;
             using ResolvedSymbolLibrary = String;
         }
 
-#define BEGIN_DEFINE_MESSAGE(TYPE, BASE) \
-struct TYPE : MessageWrapper<body::BASE> { \
-TYPE() : MessageWrapper(sizeof(TYPE), MessageType::TYPE) {}
+#define BEGIN_DEFINE_MESSAGE(TYPE) \
+struct TYPE : MessageWrapper<body::TYPE> { \
+TYPE() : MessageWrapper(MessageType::TYPE) {}
 #define END_DEFINE_MESSAGE() };
 
-#define DEFINE_MESSAGE(TYPE, BASE) \
-BEGIN_DEFINE_MESSAGE(TYPE, BASE) \
+#define DEFINE_MESSAGE(TYPE) \
+BEGIN_DEFINE_MESSAGE(TYPE) \
 END_DEFINE_MESSAGE()
 
-#define X(TYPE, _, BASE) DEFINE_MESSAGE(TYPE, BASE)
+#define X(TYPE, _) DEFINE_MESSAGE(TYPE)
 #include "message_definitions.h"
 #undef X
 
@@ -246,7 +244,7 @@ END_DEFINE_MESSAGE()
 #undef BEGIN_DEFINE_MESSAGE
 
         struct Any : MessageWrapper<body::Any> {
-            Any() : MessageWrapper(0, MessageType::Unknown) {}
+            Any() : MessageWrapper(MessageType::Unknown) {}
             template<typename T>
             T& cast() { return std::any_cast<T&>(body()); }
             template<typename T>
@@ -254,9 +252,9 @@ END_DEFINE_MESSAGE()
             void read(Connection &conn) {
                 read_header(conn);
                 switch (type()) {
-#define X(TYPE, _, BODY) case MessageType::TYPE: \
+#define X(TYPE, _) case MessageType::TYPE: \
 body() = TYPE{}; \
-body::BODY::read(conn, cast<TYPE>().body()); \
+body::TYPE::read(conn, cast<TYPE>().body()); \
 break;
 #include "message_definitions.h"
 #undef X
@@ -278,4 +276,3 @@ break;
     };
 
 }
-
