@@ -2,7 +2,7 @@
 
 using namespace rrl;
 
-Connection::Connection(int sockfd)
+Connection::Connection(intptr_t sockfd)
     : socket_(sockfd)
 {}
 

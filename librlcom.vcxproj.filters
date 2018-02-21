@@ -19,6 +19,9 @@
     <ClInclude Include="token.h">
       <Filter>token</Filter>
     </ClInclude>
+    <ClInclude Include="bound_check.h">
+      <Filter>bound_check</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="connection.cpp">
@@ -29,6 +32,9 @@
     </ClCompile>
     <ClCompile Include="message.cpp">
       <Filter>message</Filter>
+    </ClCompile>
+    <ClCompile Include="bound_check.cpp">
+      <Filter>bound_check</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +52,9 @@
     </Filter>
     <Filter Include="token">
       <UniqueIdentifier>{77bd83a9-dc18-47fb-ae80-b411469bafbb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="bound_check">
+      <UniqueIdentifier>{eff0a412-f0fd-4ead-b44e-f36e4cddf6e2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

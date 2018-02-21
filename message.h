@@ -2,6 +2,7 @@
 
 #include "connection.h"
 #include "token.h"
+#include "bound_check.h"
 
 #include <vector>
 #include <any>
@@ -65,11 +66,11 @@ namespace rrl {
         namespace body {
             struct Any {
                 using value_type = std::any;
-                static void write(Connection &conn, value_type const &value) {
-                    throw "cannot write body of Any";
+                static void write(Connection&, value_type const&) {
+                    throw std::logic_error("cannot write body of Any");
                 }
-                static void read(Connection &conn, MessageHeader const &header, value_type &value) {
-                    throw "cannot read body of Any";
+                static void read(Connection&, MessageHeader const&, value_type&) {
+                    throw std::logic_error("cannot read body of Any");
                 }
             };
 
@@ -215,7 +216,8 @@ namespace rrl {
                 static void read(Connection &conn, value_type &value) {
                     uint64_t memory_size;
                     conn >> value.address >> value.protection >> memory_size;
-                    value.memory.resize(memory_size);
+                    verify_size_bounds(memory_size);
+                    value.memory.resize(static_cast<size_t>(memory_size));
                     conn.recv(value.memory.data(), value.memory.size());
                 }
             };

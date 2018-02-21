@@ -5,6 +5,7 @@
 #include <cstddef>
 
 #include "address.h"
+#include "bound_check.h"
 
 #include <system_error>
 
@@ -12,7 +13,7 @@ namespace rrl {
 
     class Connection {
     public:
-        explicit Connection(int fd = -1);
+        explicit Connection(intptr_t fd = -1);
         virtual ~Connection() = 0;
 
         virtual void connect(Address const &address) = 0;
@@ -34,7 +35,7 @@ namespace rrl {
         }
 
     protected:
-        int socket_;
+        intptr_t socket_;
     };
 
     template<>
@@ -49,7 +50,8 @@ namespace rrl {
     inline Connection& Connection::operator>>(std::string &value) {
         uint64_t size = 0;
         recv(reinterpret_cast<std::byte*>(&size), sizeof(size));
-        value.resize(size);
+        verify_size_bounds(size);
+        value.resize(static_cast<size_t>(size));
         recv(reinterpret_cast<std::byte*>(value.data()), size);
         return *this;
     }
