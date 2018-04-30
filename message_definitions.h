@@ -3,7 +3,6 @@ X(OK                           , 0x0CULL << 56                 )
 
 // client <-> svcreqhandler
 X(Version                      , 0x01ULL                       )
-X(Authorization                , 0x0ALL                        )
 X(LinkLibrary                  , 0x111BLL                      )
 
 // client <-> svclinker

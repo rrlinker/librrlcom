@@ -133,13 +133,6 @@
     <ClInclude Include="message.h" />
     <ClInclude Include="message_definitions.h" />
     <ClInclude Include="bound_check.h" />
-    <ClInclude Include="token.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="connection.cpp" />
-    <ClCompile Include="courier.cpp" />
-    <ClCompile Include="message.cpp" />
-    <ClCompile Include="bound_check.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

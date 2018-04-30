@@ -13,7 +13,9 @@ namespace rrl {
 
     class Connection {
     public:
-        explicit Connection(intptr_t fd = -1);
+        explicit Connection(intptr_t fd = -1)
+            : socket_(fd)
+        {}
         virtual ~Connection() = 0;
 
         virtual void connect(Address const &address) = 0;
@@ -56,5 +58,6 @@ namespace rrl {
         return *this;
     }
 
-}
+    inline Connection::~Connection() {}
 
+}

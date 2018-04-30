@@ -16,26 +16,9 @@
     <ClInclude Include="message.h">
       <Filter>message</Filter>
     </ClInclude>
-    <ClInclude Include="token.h">
-      <Filter>token</Filter>
-    </ClInclude>
     <ClInclude Include="bound_check.h">
       <Filter>bound_check</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="connection.cpp">
-      <Filter>connection</Filter>
-    </ClCompile>
-    <ClCompile Include="courier.cpp">
-      <Filter>courier</Filter>
-    </ClCompile>
-    <ClCompile Include="message.cpp">
-      <Filter>message</Filter>
-    </ClCompile>
-    <ClCompile Include="bound_check.cpp">
-      <Filter>bound_check</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="address">
@@ -49,9 +32,6 @@
     </Filter>
     <Filter Include="message">
       <UniqueIdentifier>{229640ea-1050-4456-8d9a-2d285a03c8d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="token">
-      <UniqueIdentifier>{77bd83a9-dc18-47fb-ae80-b411469bafbb}</UniqueIdentifier>
     </Filter>
     <Filter Include="bound_check">
       <UniqueIdentifier>{eff0a412-f0fd-4ead-b44e-f36e4cddf6e2}</UniqueIdentifier>
