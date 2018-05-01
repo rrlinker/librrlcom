@@ -16,6 +16,17 @@ namespace rrl {
 #undef X
     };
 
+    class UnexpectedMessageType : public std::runtime_error {
+    public:
+        UnexpectedMessageType(MessageType got, MessageType expected)
+            : runtime_error("unexpected message type")
+            , got(got)
+            , expected(expected)
+        {}
+        MessageType const got;
+        MessageType const expected;
+    };
+
     struct MessageHeader {
         MessageType type;
         MessageHeader(MessageType type) noexcept
@@ -53,7 +64,17 @@ namespace rrl {
             write_body(conn);
         }
 
-        void read_header(Connection &conn) { conn >> header.type; }
+        void read_header(Connection &conn) {
+            if (type() == MessageType::Unknown) {
+                conn >> header.type;
+            } else {
+                MessageType incoming_type;
+                conn >> incoming_type;
+                if (type() != incoming_type) {
+                    throw UnexpectedMessageType(incoming_type, type());
+                }
+            }
+        }
         void read_body(Connection &conn) { Body::read(conn, body()); }
         void read(Connection &conn) {
             read_header(conn);
@@ -197,8 +218,9 @@ TYPE(body::TYPE::value_type const &bdy) : MessageWrapper(MessageType::TYPE, bdy)
             , got(std::move(got))
             , expected(expected)
         {}
-        msg::Any got;
-        MessageType expected;
+        msg::Any const got;
+        MessageType const expected;
     };
 
 }
+
