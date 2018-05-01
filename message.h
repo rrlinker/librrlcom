@@ -195,7 +195,7 @@ TYPE(body::TYPE::value_type const &bdy) : MessageWrapper(MessageType::TYPE, bdy)
             void read(Connection &conn) {
                 read_header(conn);
                 body() = message_map_.at(type());
-                std::visit([&conn](auto x) {
+                std::visit([&conn](auto &x) {
                     x.read_body(conn);
                 }, body());
             }
