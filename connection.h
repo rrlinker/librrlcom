@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <cstddef>
 
 #include "address.h"
@@ -33,6 +34,24 @@ namespace rrl {
         template<typename T>
         Connection& operator>>(T &value) {
             recv(reinterpret_cast<std::byte*>(&value), sizeof(T));
+            return *this;
+        }
+
+        template<typename T>
+        Connection& operator<<(std::vector<T> const &value) {
+            uint64_t size = value.size();
+            send(reinterpret_cast<std::byte const*>(&size), sizeof(size));
+            send(value.data(), value.size() * sizeof(T));
+            return *this;
+        }
+
+        template<typename T>
+        Connection& operator>>(std::vector<T> &value) {
+            uint64_t size = 0;
+            recv(reinterpret_cast<std::byte*>(&size), sizeof(size));
+            verify_size_bounds(size);
+            value.resize(static_cast<size_t>(size));
+            recv(reinterpret_cast<std::byte*>(value.data()), size);
             return *this;
         }
 

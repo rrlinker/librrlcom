@@ -103,13 +103,21 @@ namespace rrl {
                 static void write(Connection &conn, value_type const &value) { conn << value; }
                 static void read(Connection &conn, value_type &value) { conn >> value; }
             };
+            template<typename T>
+            struct Vector {
+                using value_type = std::vector<T>;
+                static void write(Connection &conn, value_type const &value) { conn << value; }
+                static void read(Connection &conn, value_type &value) { conn >> value; }
+            };
 
             // Common
             struct Unknown : Empty {};
             struct OK : Empty {};
+            struct NotOK : Empty {};
 
             // client <-> svcreqhandler
             struct Version : Value<uint64_t> {};
+            struct Authenticate : Vector<std::byte> {};
             struct LinkLibrary : String {};
 
             // client <-> svclinker
@@ -168,45 +176,65 @@ TYPE(body::TYPE::value_type const &bdy) : MessageWrapper(MessageType::TYPE, bdy)
 
         struct __Dummy : Unknown {};
 
-        struct AnyHolder {
-            using value_type = std::variant<
+        struct Any {
+            using holder = std::variant<
 #define X(TYPE, _) TYPE,
 #include "message_definitions.h"
 #undef X
                 __Dummy
             >;
-        };
 
-        struct Any : MessageWrapper<AnyHolder> {
-            Any() : MessageWrapper(MessageType::Unknown) {}
+            Any() : holder_(msg::Unknown{}) {}
+            template<typename T>
+            Any(T const& m) : holder_(m) {}
+            template<typename T>
+            Any(T &&m) : holder_(std::move(m)) {}
 
             template<typename T>
-            T& cast() { return std::get<T>(body()); }
+            T& cast() { return std::get<T>(holder_); }
 
             template<typename T>
-            T const& cast() const { return std::get<T>(body()); }
+            T const& cast() const { return std::get<T>(holder_); }
+
+            template<typename T>
+            void assert() const {
+                if (!std::holds_alternative<T>(holder_))
+                    throw std::runtime_error("assertion failed");
+            }
+            
+            MessageType type() const {
+                return message_types_[holder_.index()];
+            }
 
             void write(Connection &conn) const {
                 std::visit([&conn](auto x) {
                     x.write(conn);
-                }, body());
+                }, holder_);
             }
 
             void read(Connection &conn) {
-                read_header(conn);
-                body() = message_map_.at(type());
+                MessageType type;
+                conn >> type;
+                holder_ = message_map_.at(type);
                 std::visit([&conn](auto &x) {
                     x.read_body(conn);
-                }, body());
+                }, holder_);
             }
 
         private:
-            static inline std::unordered_map<MessageType, AnyHolder::value_type> const message_map_{
+            holder holder_;
+
+            static inline std::unordered_map<MessageType, holder> const message_map_{
 #define X(TYPE, _) { MessageType::TYPE, TYPE{} },
 #include "message_definitions.h"
 #undef X
             };
 
+            static inline std::vector<MessageType> const message_types_{
+#define X(TYPE, _) MessageType::TYPE,
+#include "message_definitions.h"
+#undef X
+            };
         };
 
     }

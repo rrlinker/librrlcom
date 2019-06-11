@@ -137,6 +137,7 @@
     <ClInclude Include="address.h" />
     <ClInclude Include="connection.h" />
     <ClInclude Include="courier.h" />
+    <ClInclude Include="raw_courier.h" />
     <ClInclude Include="message.h" />
     <ClInclude Include="message_definitions.h" />
     <ClInclude Include="bound_check.h" />

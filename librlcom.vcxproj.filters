@@ -19,6 +19,9 @@
     <ClInclude Include="bound_check.h">
       <Filter>bound_check</Filter>
     </ClInclude>
+    <ClInclude Include="raw_courier.h">
+      <Filter>raw_courier</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="address">
@@ -35,6 +38,9 @@
     </Filter>
     <Filter Include="bound_check">
       <UniqueIdentifier>{eff0a412-f0fd-4ead-b44e-f36e4cddf6e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="raw_courier">
+      <UniqueIdentifier>{1ec04efe-60e0-4d1e-834a-ca15bfcc5687}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

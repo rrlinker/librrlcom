@@ -1,8 +1,11 @@
+// Common
 X(Unknown                      , 0x0ULL                        )
 X(OK                           , 0x0CULL << 56                 )
+X(NotOK                        , 0x7CULL << 56                 )
 
 // client <-> svcreqhandler
 X(Version                      , 0x01ULL                       )
+X(Authenticate                 , 0x0AULL                       )
 X(LinkLibrary                  , 0x111BLL                      )
 
 // client <-> svclinker
