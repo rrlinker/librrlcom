@@ -117,7 +117,7 @@ namespace rrl {
 
             // client <-> svcreqhandler
             struct Version : Value<uint64_t> {};
-            struct Authenticate : Vector<std::byte> {};
+            struct Identify : Vector<std::byte> {};
             struct LinkLibrary : String {};
 
             // client <-> svclinker
