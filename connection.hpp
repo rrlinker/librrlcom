@@ -5,8 +5,8 @@
 #include <vector>
 #include <cstddef>
 
-#include "address.h"
-#include "bound_check.h"
+#include "address.hpp"
+#include "bound_check.hpp"
 
 #include <system_error>
 
@@ -17,7 +17,7 @@ namespace rrl {
         explicit Connection(intptr_t fd = -1)
             : socket_(fd)
         {}
-        virtual ~Connection() = 0;
+        virtual ~Connection() noexcept(false) = 0;
 
         virtual void connect(Address const &address) = 0;
         virtual void disconnect() = 0;
@@ -77,6 +77,6 @@ namespace rrl {
         return *this;
     }
 
-    inline Connection::~Connection() {}
+    inline Connection::~Connection() noexcept(false) {}
 
 }
