@@ -5,7 +5,7 @@ X(NotOK                        , 0x7CULL << 56                 )
 
 // client <-> svcreqhandler
 X(Version                      , 0x01ULL                       )
-X(Identify                     , 0x1DULL                       )
+X(Token                        , 0x70ULL                       )
 X(LinkLibrary                  , 0x111BLL                      )
 
 // client <-> svclinker
