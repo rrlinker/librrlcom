@@ -8,8 +8,6 @@
 #include "address.hpp"
 #include "bound_check.hpp"
 
-#include <system_error>
-
 namespace rrl {
 
     class Connection {
