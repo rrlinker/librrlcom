@@ -120,7 +120,7 @@ namespace rrl {
             struct Token : Vector<std::byte> {};
             struct LinkLibrary : String {};
 
-            // client <-> svclinker
+            // client <-> svcrrlinker
             struct ResolveExternalSymbol {
                 struct value_type {
                     std::string library;
@@ -160,7 +160,7 @@ namespace rrl {
             };
             struct Execute : Value<uint64_t> {};
 
-            // svclinker <-> svcsymres
+            // svcrrlinker <-> svcsymres
             struct GetSymbolLibrary : String {};
             struct ResolvedSymbolLibrary : String {};
         }
