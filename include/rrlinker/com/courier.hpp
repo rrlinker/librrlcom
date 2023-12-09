@@ -1,7 +1,7 @@
 #pragma once
 
-#include "message.hpp"
-#include "connection.hpp"
+#include <rrlinker/com/message.hpp>
+#include <rrlinker/com/connection.hpp>
 
 namespace rrl {
 

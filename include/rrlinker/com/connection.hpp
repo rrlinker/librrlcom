@@ -1,12 +1,12 @@
 #pragma once
 
+#include <rrlinker/com/address.hpp>
+#include <rrlinker/com/bound_check.hpp>
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <cstddef>
-
-#include "address.hpp"
-#include "bound_check.hpp"
 
 namespace rrl {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "courier.hpp"
+#include <rrlinker/com/courier.hpp>
 
 namespace rrl {
 

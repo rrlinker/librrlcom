@@ -1,7 +1,7 @@
 #pragma once
 
-#include "connection.hpp"
-#include "bound_check.hpp"
+#include <rrlinker/com/connection.hpp>
+#include <rrlinker/com/bound_check.hpp>
 
 #include <vector>
 #include <variant>
@@ -12,7 +12,7 @@ namespace rrl {
 
     enum class MessageType : uint64_t {
 #define X(TYPE, VALUE) TYPE = VALUE,
-#include "message_definitions.hpp"
+#include <rrlinker/com/message_definitions.hpp>
 #undef X
     };
 
@@ -171,7 +171,7 @@ struct TYPE : MessageWrapper<body::TYPE> { \
 TYPE() : MessageWrapper(MessageType::TYPE) {} \
 TYPE(body::TYPE::value_type const &bdy) : MessageWrapper(MessageType::TYPE, bdy) {} \
 };
-#include "message_definitions.hpp"
+#include <rrlinker/com/message_definitions.hpp>
 #undef X
 
         struct __Dummy : Unknown {};
@@ -179,7 +179,7 @@ TYPE(body::TYPE::value_type const &bdy) : MessageWrapper(MessageType::TYPE, bdy)
         struct Any {
             using holder = std::variant<
 #define X(TYPE, _) TYPE,
-#include "message_definitions.hpp"
+#include <rrlinker/com/message_definitions.hpp>
 #undef X
                 __Dummy
             >;
@@ -226,13 +226,13 @@ TYPE(body::TYPE::value_type const &bdy) : MessageWrapper(MessageType::TYPE, bdy)
 
             static inline std::unordered_map<MessageType, holder> const message_map_{
 #define X(TYPE, _) { MessageType::TYPE, TYPE{} },
-#include "message_definitions.hpp"
+#include <rrlinker/com/message_definitions.hpp>
 #undef X
             };
 
             static inline std::vector<MessageType> const message_types_{
 #define X(TYPE, _) MessageType::TYPE,
-#include "message_definitions.hpp"
+#include <rrlinker/com/message_definitions.hpp>
 #undef X
             };
         };

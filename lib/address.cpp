@@ -1,4 +1,4 @@
-#include "address.hpp"
+#include <rrlinker/com/address.hpp>
 
 using namespace rrl;
 
